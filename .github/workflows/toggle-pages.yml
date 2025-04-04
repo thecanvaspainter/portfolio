@@ -4,35 +4,37 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Mode (live or dead)'
+        description: 'Enter "live" or "dead"'
         required: true
 
 jobs:
-  toggle:
+  toggle-pages:
     runs-on: ubuntu-latest
     steps:
-      - name: Toggle GitHub Pages
+      - name: Toggle GitHub Pages State
         env:
           GH_TOKEN: ${{ secrets.PAGES_TOGGLE_PAT }}
           REPO: ${{ github.repository }}
           MODE: ${{ github.event.inputs.mode }}
         run: |
-          echo "Mode: $MODE"
+          echo "🔁 Requested: $MODE mode"
 
           if [ "$MODE" = "dead" ]; then
             curl -X DELETE \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/$REPO/pages
-            echo "❌ GitHub Pages disabled"
+            echo "🔴 GitHub Pages is now OFFLINE."
+          
           elif [ "$MODE" = "live" ]; then
             curl -X POST \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/$REPO/pages \
               -d '{"source":{"branch":"main","path":"/"}}'
-            echo "✅ GitHub Pages re-enabled"
+            echo "🟢 GitHub Pages is now ONLINE."
+          
           else
-            echo "Invalid mode"
+            echo "❌ Invalid mode. Use 'live' or 'dead'."
             exit 1
           fi
