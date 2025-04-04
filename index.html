@@ -34,39 +34,6 @@
   ======================================================== -->
 </head>
 
-  <div id="lockScreen">
-  <h2>This page is locked</h2>
-  <input type="password" id="passwordInput" placeholder="Enter password">
-</div>
-
-<script>
-  // 🧂 Salted and SHA-256 hashed password (e.g., "letmein123")
-  const storedHash = "8e018a959f38c8867ac192945b5b173b698088a26a2fd62c62b3c684467e7de5"; // you can generate your own
-
-  // Hashing function using SHA-256
-  async function sha256(text) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-  }
-
-  document.getElementById("passwordInput").addEventListener("keydown", async function(e) {
-    if (e.key === "Enter") {
-      const enteredPassword = e.target.value;
-      const enteredHash = await sha256(enteredPassword);
-      if (enteredHash === storedHash) {
-        document.getElementById("lockScreen").style.display = "none";
-      } else {
-        alert("Wrong password");
-        e.target.value = "";
-      }
-    }
-  });
-
-</script>
 
 <body class="index-page">
 
