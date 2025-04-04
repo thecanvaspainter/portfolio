@@ -1226,3 +1226,6 @@ p.migga{
 h4.title{
   color: #ffffff;
 }
+h5.text-nigga{
+  color: var(--accent-color) !important;
+}
