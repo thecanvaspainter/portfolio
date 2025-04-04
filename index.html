@@ -36,6 +36,22 @@
 
 
 <body class="index-page">
+  <div id="lock-screen" style="
+  position: fixed;
+  z-index: 9999;
+  background: black;
+  color: white;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+">
+  <h2 style="color: #26a69a;">Enter Password to Unlock</h2>
+  <input id="password-input" type="password" placeholder="Password" style="padding: 10px; font-size: 18px; background: #0f0f0f !important; color: #ffffff; border: 0.5px solid #26a69a; border-radius: 20px; width: 20vw; height: 2.5vh; text-align: center; justify-content: center;">
+  <button onclick="verifyPassword()" style="padding: 10px 20px; margin-top: 10px; background: #0f0f0f; color: #ffffff;height: 5vh; border: .25px solid #26a69a; border-radius: 20px; box-shadow: 0 0 5px #26a69a; margin-top: 2.5%;">Unlock</button>
+  <p id="error-msg" style="color: red; display: none; margin-top: 10px;">Incorrect password!</p>
+</div>
 
   <header id="header" class="header dark-background d-flex flex-column">
     <i class="header-toggle d-xl-none bi bi-list"></i>
@@ -1649,7 +1665,33 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
-
+  <script>
+    // Your SHA-256 hash of the password
+    const correctHash = "f7c45f5ebecae2a6c3e825d09b344f7c0547f9637c6311a6bb56d7deb5e37b22";
+  
+    // SHA-256 hashing using Web Crypto API
+    async function sha256(str) {
+      const utf8 = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  
+    async function verifyPassword() {
+      const input = document.getElementById('password-input').value;
+      const hash = await sha256(input);
+      if (hash === correctHash) {
+        document.getElementById('lock-screen').style.display = 'none';
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+      }
+    }
+  
+    // Optional: Prevent interaction with underlying content until unlocked
+    window.addEventListener("DOMContentLoaded", () => {
+      document.body.style.overflow = "hidden";
+    });
+  </script>
 </body>
 
 </html>
