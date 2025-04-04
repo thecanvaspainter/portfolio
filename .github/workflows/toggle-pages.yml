@@ -1,40 +1,35 @@
-name: Toggle GitHub Pages
+name: 🔁 Toggle Repo Visibility
 
 on:
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Enter "live" or "dead"'
-        required: true
+  push:
+    branches:
+      - toggle-visibility  # 👈 When you push to this branch, it toggles visibility
 
 jobs:
-  toggle-pages:
+  toggle-visibility:
     runs-on: ubuntu-latest
-    steps:
-      - name: Toggle GitHub Pages State
-        env:
-          GH_TOKEN: ${{ secrets.PAGES_TOGGLE_PAT }}
-          REPO: ${{ github.repository }}
-          MODE: ${{ github.event.inputs.mode }}
-        run: |
-          echo "🔁 Requested: $MODE mode"
 
-          if [ "$MODE" = "dead" ]; then
-            curl -X DELETE \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              https://api.github.com/repos/$REPO/pages
-            echo "🔴 GitHub Pages is now OFFLINE."
-          
-          elif [ "$MODE" = "live" ]; then
-            curl -X POST \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              https://api.github.com/repos/$REPO/pages \
-              -d '{"source":{"branch":"main","path":"/"}}'
-            echo "🟢 GitHub Pages is now ONLINE."
-          
+    steps:
+      - name: 🧠 Toggle public/private repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}  # 👈 Add your PAT in repo secrets as GH_PAT
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          echo "🔍 Checking current visibility..."
+
+          current_visibility=$(curl -s -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/$OWNER/$REPO | jq '.private')
+
+          if [ "$current_visibility" = "true" ]; then
+            new_visibility="false"
+            echo "📤 Repo is currently PRIVATE. Making it PUBLIC..."
           else
-            echo "❌ Invalid mode. Use 'live' or 'dead'."
-            exit 1
+            new_visibility="true"
+            echo "📥 Repo is currently PUBLIC. Making it PRIVATE..."
           fi
+
+          curl -X PATCH \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/$OWNER/$REPO \
+            -d "{\"private\": $new_visibility}"
