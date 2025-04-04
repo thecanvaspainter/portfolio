@@ -17,24 +17,26 @@ jobs:
           REPO: ${{ github.repository }}
           MODE: ${{ github.event.inputs.mode }}
         run: |
-          echo "🔁 Requested: $MODE mode"
+          echo "Requested mode: $MODE"
 
           if [ "$MODE" = "dead" ]; then
-            curl -X DELETE \
+            echo "Disabling Pages..."
+            curl -i -X DELETE \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/$REPO/pages
-            echo "🔴 GitHub Pages is now OFFLINE."
-          
+            echo "✔️ Pages disabled (should go 404)."
+
           elif [ "$MODE" = "live" ]; then
-            curl -X POST \
+            echo "Enabling Pages..."
+            curl -i -X POST \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/$REPO/pages \
               -d '{"source":{"branch":"main","path":"/"}}'
-            echo "🟢 GitHub Pages is now ONLINE."
-          
+            echo "✔️ Pages re-enabled (should go LIVE)."
+
           else
-            echo "❌ Invalid mode. Use 'live' or 'dead'."
+            echo "❌ Invalid mode. Use live or dead."
             exit 1
           fi
