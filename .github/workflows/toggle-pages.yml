@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'live or dead'
+        description: 'Mode (live or dead)'
         required: true
 
 jobs:
@@ -24,15 +24,15 @@ jobs:
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/$REPO/pages
-            echo "🛑 Site disabled"
+            echo "❌ GitHub Pages disabled"
           elif [ "$MODE" = "live" ]; then
             curl -X POST \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/$REPO/pages \
               -d '{"source":{"branch":"main","path":"/"}}'
-            echo "✅ Site enabled"
+            echo "✅ GitHub Pages re-enabled"
           else
-            echo "❌ Invalid mode"
+            echo "Invalid mode"
             exit 1
           fi
